@@ -3,10 +3,10 @@
 #define MAX(x,y)    (x)>(y)?(x):(y)
 
 /***************
-
 #findMinimumAVL
+#findMaximumAVL
 #insertAVL
-
+#deleteAVL
 ****************/
 struct Node{
     int data;
@@ -26,90 +26,92 @@ int heightbalance(struct Node* nd){
 }
 
 
-
+//Helper functions for rebalancing through rotations
 struct Node* leftRotation(struct Node* node){
-    struct Node* temp = node->right;
-    //swing pointers
-    node->right = temp->left;
-    temp->left = node;
-    //update heights
-    node->height = MAX(height(node->left),height(node->right))+1;
-    temp->height = MAX(height(temp->left),height(temp->right))+1;
-    return temp;
+	struct Node* temp = node->right;
+	//swing pointers
+	node->right = temp->left;
+	temp->left = node;
+	//update heights
+	node->height = MAX(height(node->left),height(node->right))+1;
+	temp->height = MAX(height(temp->left),height(temp->right))+1;
+	return temp;
 }
 
 struct Node* rightRotation(struct Node* node){
-    struct Node* temp = node->left;
-    //swing pointers
-    node->left = temp->right;
-    temp->right = node;
-    //update heights
-    node->height = MAX(height(node->left),height(node->right))+1;
-    temp->height = MAX(height(temp->left),height(temp->right))+1;
-    return temp;
+	struct Node* temp = node->left;
+	//swing pointers
+	node->left = temp->right;
+	temp->right = node;
+	//update heights
+	node->height = MAX(height(node->left),height(node->right))+1;
+	temp->height = MAX(height(temp->left),height(temp->right))+1;
+	return temp;
 }
 
 struct Node* findMinimumAVL(struct Node* root){
-    if(!root) return root;
-    struct Node* retnode;
-    if(root->left){
-                retnode=findMinimumAVL(root->left);
-    }else{
-        retnode = root;
-    }
-    return retnode;
+	if(!root) return root;
+
+	struct Node* retnode;
+	if(root->left){
+		retnode=findMinimumAVL(root->left);
+	}else{
+		retnode = root;
+	}
+	
+	return retnode;
     
 }
 
 struct Node* findMaximumAVL(struct Node* root){
-    if(!root) return root;
-    struct Node* retnode;
-    if(root->right){
-                retnode=findMaximumAVL(root->right);
-    }else{
-        retnode = root;
-    }
-    return retnode;
+	if(!root) return root;
+    
+	struct Node* retnode;
+	if(root->right){
+		retnode=findMaximumAVL(root->right);
+	}else{
+		retnode = root;
+	}
+	return retnode;
     
 }
 
 struct Node* insertAVL(struct Node* root,int value){
-    if(!root){
-        struct Node* newNode = (struct Node *)malloc(sizeof(struct Node));
-        newNode->data = value;
-        newNode->left= NULL;
-        newNode->right = NULL;
-        newNode->height = 1;
-        return newNode;
-    }
-    if((root->data)<value) 
-        root->right = insertAVL(root->right,value);
-    else  
-        root->left =  insertAVL(root->left,value);
+	if(!root){
+		struct Node* newNode = (struct Node *)malloc(sizeof(struct Node));
+		newNode->data = value;
+		newNode->left= NULL;
+		newNode->right = NULL;
+		newNode->height = 1;
+		return newNode;
+	}
+	if((root->data)<value) 
+		root->right = insertAVL(root->right,value);
+	else  
+		root->left =  insertAVL(root->left,value);
     
-    //traverse and update heights along the path that the node was inserted
-    //printf("MAX height: %d",MAX(height(root->left),height(root->right)));
-    root->height =MAX(height(root->left),height(root->right))+1;
-    //printf("In insert: data:%d   ht:%d\n",root->data,root->height);
-    int ht_bal=0;
-    ht_bal = heightbalance(root);
+	//traverse and update heights along the path that the node was inserted
+	//printf("MAX height: %d",MAX(height(root->left),height(root->right)));
+	root->height =MAX(height(root->left),height(root->right))+1;
+	//printf("In insert: data:%d   ht:%d\n",root->data,root->height);
+	int ht_bal=0;
+	ht_bal = heightbalance(root);
     
-    if((ht_bal < -1) && (value>(root->right)->data)){       //rotate left
-        return leftRotation(root);
-    }
-    else if((ht_bal > 1) && (value<=(root->left)->data)){   //rotate right
-        return rightRotation(root); 
-    }
-    else if((ht_bal > 1) && (value>(root->left)->data)){    //rotate left right
-        root->left = leftRotation(root->left);
-        return rightRotation(root);
-    }
-    else if((ht_bal < -1) && (value<=(root->right)->data)){    //rotate right left
-        root->right = rightRotation(root->right);
-        return leftRotation(root);
-    }
-    
-    return root;
+	if((ht_bal < -1) && (value>(root->right)->data)){       //rotate left
+		return leftRotation(root);
+	}
+	else if((ht_bal > 1) && (value<=(root->left)->data)){   //rotate right
+		return rightRotation(root); 
+	}
+	else if((ht_bal > 1) && (value>(root->left)->data)){    //rotate left right
+		root->left = leftRotation(root->left);
+		return rightRotation(root);
+	}
+	else if((ht_bal < -1) && (value<=(root->right)->data)){    //rotate right left
+		root->right = rightRotation(root->right);
+		return leftRotation(root);
+	}    
+	return root;
 }
 
 struct Node* deleteAVL(struct Node* root, int value){
@@ -141,37 +143,34 @@ struct Node* deleteAVL(struct Node* root, int value){
 		}
 	}
 
-	
-
-
 	if(!root) return root;
 	root->height =MAX(height(root->left),height(root->right))+1;
-    //printf("In insert: data:%d   ht:%d\n",root->data,root->height);
-    int ht_bal=0;
-    ht_bal = heightbalance(root);
+	
+	int ht_bal=0;
+	ht_bal = heightbalance(root);
     
-    if((ht_bal < -1) && (value>(root->right)->data)){       //rotate left
-        return leftRotation(root);
-    }
-    else if((ht_bal > 1) && (value<=(root->left)->data)){   //rotate right
-        return rightRotation(root); 
-    }
-    else if((ht_bal > 1) && (value>(root->left)->data)){    //rotate left right
-        root->left = leftRotation(root->left);
-        return rightRotation(root);
-
-    }
-    else if((ht_bal < -1) && (value<=(root->right)->data)){    //rotate right left
-        root->right = rightRotation(root->right);
-        return leftRotation(root);
-    }
+	if((ht_bal < -1) && (value>(root->right)->data)){       //rotate left
+		return leftRotation(root);
+	}
+	else if((ht_bal > 1) && (value<=(root->left)->data)){   //rotate right
+		return rightRotation(root); 
+	}
+	else if((ht_bal > 1) && (value>(root->left)->data)){    //rotate left right
+		root->left = leftRotation(root->left);
+		return rightRotation(root);
+	}
+	else if((ht_bal < -1) && (value<=(root->right)->data)){    //rotate right left
+		root->right = rightRotation(root->right);
+		return leftRotation(root);
+	}
     
-    return root;
+	return root;
 
 }
 
-int main()
-{
+//Test program
+int main(){
+
     struct Node* root = NULL;
     struct Node* temp = NULL;
     
